@@ -1,5 +1,9 @@
 # JobFlow 秋招求职工作台
 
+[**直接下载 Windows 安装程序（v0.1.0）**](https://github.com/DengYi111/jobflow-desktop/releases/download/v0.1.0/JobFlow-Windows-0.1.0-Setup.exe) · [SHA-256 校验文件](https://github.com/DengYi111/jobflow-desktop/releases/download/v0.1.0/JobFlow-Windows-0.1.0-Setup.exe.sha256)
+
+> 仅对获准访问此私有仓库的账号开放。适用于 Windows 10/11 x64；安装包未进行代码签名，Windows 可能显示未知发布者提示。
+
 JobFlow 是一款面向个人求职流程的 Windows 桌面应用。它把公司与岗位、投递进度、面试日程与题库、个人资料和简历集中保存在本机，内置招聘网站浏览器，并提供可人工检查的一键资料填写。
 
 应用不会替用户提交招聘网站表单。自动填写只负责将资料写入网页字段，最终提交由用户检查后自行完成。
