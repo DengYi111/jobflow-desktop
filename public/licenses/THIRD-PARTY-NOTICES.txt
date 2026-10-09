@@ -1,0 +1,24 @@
+JobFlow uses the following open-source visual resources:
+
+Noto Sans SC variable font
+Copyright 2022 The Noto Project Authors
+License: SIL Open Font License 1.1
+Source: https://github.com/google/fonts/tree/main/ofl/notosanssc
+Font source file: NotoSansSC[wght].ttf
+The full license is included in NotoSansSC-OFL.txt.
+
+Ant Design 6.6.5
+Copyright Ant Design Authors
+License: MIT
+The full license is included in ANT-DESIGN-MIT.txt.
+
+@ant-design/icons 6.3.4
+Copyright Ant Design Authors
+License: MIT
+The full license is included in ANT-DESIGN-ICONS-MIT.txt.
+
+PDF.js / pdfjs-dist 6.3.289
+Copyright 2024 Mozilla Foundation
+License: Apache License 2.0
+The full license is included in PDFJS-APACHE-2.0.txt.
+PDF.js CMaps, standard fonts, and optional image decoders are included with their upstream licenses in the other PDFJS-* license files in this folder.

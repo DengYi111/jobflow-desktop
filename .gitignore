@@ -1,0 +1,56 @@
+# Dependencies and generated output
+node_modules/
+dist/
+dist-electron/
+dist-ssr/
+release/
+tmp/
+build-assets/*.ico
+node-v*/
+*.local
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+
+# Runtime data and personal files
+data/
+Data/
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+*.pdf
+*.docx
+*.resume
+*.cookie
+*.cookies
+*.token
+*.pem
+*.key
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor and operating system files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

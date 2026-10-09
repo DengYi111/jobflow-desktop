@@ -1,0 +1,21 @@
+export const companyIndustryDefinitions = [
+  { id: 'internet-software', nameZh: '互联网与软件' },
+  { id: 'semiconductor', nameZh: '半导体与芯片' },
+  { id: 'telecom-equipment', nameZh: '通信设备' },
+  { id: 'electronics-manufacturing', nameZh: '电子制造' },
+  { id: 'automotive', nameZh: '汽车与零部件' },
+  { id: 'new-energy', nameZh: '新能源与电池' },
+  { id: 'industrial-automation', nameZh: '工业自动化' },
+  { id: 'aerospace', nameZh: '航空航天' },
+  { id: 'energy-power', nameZh: '能源电力' },
+  { id: 'chemicals-materials', nameZh: '化工材料' },
+  { id: 'finance', nameZh: '金融' },
+  { id: 'pharma-biotech', nameZh: '医药生物' },
+  { id: 'medical-devices', nameZh: '医疗器械' },
+  { id: 'consumer-goods', nameZh: '消费品' },
+  { id: 'retail-ecommerce', nameZh: '零售电商' },
+  { id: 'logistics-transport', nameZh: '物流交通' },
+  { id: 'construction-engineering', nameZh: '建筑工程' },
+  { id: 'professional-services', nameZh: '专业服务' },
+] as const
+export const companyIndustryIds = companyIndustryDefinitions.map((industry) => industry.id)

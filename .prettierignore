@@ -1,0 +1,12 @@
+node_modules/
+dist/
+dist-electron/
+release/
+tmp/
+build-assets/
+node-v*/
+public/pdfjs/
+src/assets/fonts/
+public/licenses/
+drizzle/
+pnpm-lock.yaml

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title">
+  <title id="title">JobFlow 求职进度图标</title>
+  <defs>
+    <linearGradient id="tile" x1="28" y1="18" x2="226" y2="242" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6684F5"/>
+      <stop offset="1" stop-color="#304BB7"/>
+    </linearGradient>
+    <linearGradient id="route" x1="77" y1="75" x2="171" y2="181" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#DDE7FF"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="62" fill="url(#tile)"/>
+  <rect x="8" y="8" width="240" height="240" rx="56" fill="none" stroke="#FFFFFF" stroke-opacity=".18" stroke-width="2"/>
+  <path d="M82 76h91v57c0 29-18 48-47 48-20 0-35-9-45-25" fill="none" stroke="url(#route)" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="82" cy="76" r="11" fill="#E7EEFF"/>
+  <circle cx="81" cy="156" r="13" fill="#6CE3C0" stroke="#F3FFFC" stroke-width="5"/>
+</svg>
