@@ -49,6 +49,11 @@ describe('browser request contracts', () => {
       browserFillFieldsSchema.safeParse({
         fields: Array.from({ length: 61 }, (_, index) => ({ signature: `field-${index}`, value: '姓名' })),
       }).success,
+    ).toBe(true)
+    expect(
+      browserFillFieldsSchema.safeParse({
+        fields: Array.from({ length: 181 }, (_, index) => ({ signature: `field-${index}`, value: '姓名' })),
+      }).success,
     ).toBe(false)
   })
 })

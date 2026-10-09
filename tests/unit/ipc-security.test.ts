@@ -10,6 +10,16 @@ describe('IPC trust boundary', () => {
     ).rejects.toThrow('Untrusted IPC sender')
   })
 
+  it('rejects trusted-origin URLs that embed credentials', async () => {
+    const registry = createHandlerRegistry('app://jobflow', {})
+    await expect(
+      registry.dispatch('jobflow:jobs.list', {
+        senderFrame: { url: 'app://user:secret@jobflow/' },
+        args: [],
+      }),
+    ).rejects.toThrow('Untrusted IPC sender')
+  })
+
   it('rejects unknown IPC methods', async () => {
     const registry = createHandlerRegistry('http://localhost:5173', {})
     await expect(

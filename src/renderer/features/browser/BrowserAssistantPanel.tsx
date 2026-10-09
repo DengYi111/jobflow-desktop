@@ -1,5 +1,5 @@
 import { Button, Typography } from 'antd'
-import { CheckCircleOutlined, FormOutlined, PlusOutlined } from '@ant-design/icons'
+import { FormOutlined, PlusOutlined } from '@ant-design/icons'
 import { BrowserProfileAssistant } from './BrowserProfileAssistant'
 
 const { Text } = Typography
@@ -14,7 +14,7 @@ export function BrowserAssistantPanel({
   url: string
   fillRequest: number
   onFill: () => void
-  onCapture: (applied: 'draft' | 'applied') => void
+  onCapture: () => void
   onClose: () => void
 }) {
   return (
@@ -32,11 +32,8 @@ export function BrowserAssistantPanel({
         <Button type="primary" icon={<FormOutlined />} onClick={onFill}>
           一键填写
         </Button>
-        <Button icon={<PlusOutlined />} onClick={() => onCapture('draft')}>
-          收录为待投递
-        </Button>
-        <Button icon={<CheckCircleOutlined />} onClick={() => onCapture('applied')}>
-          标记已投递
+        <Button icon={<PlusOutlined />} onClick={onCapture}>
+          收录岗位
         </Button>
       </div>
       <BrowserProfileAssistant url={url} fillRequest={fillRequest} embedded onClose={() => undefined} />

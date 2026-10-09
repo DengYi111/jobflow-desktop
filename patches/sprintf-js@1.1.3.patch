@@ -1,0 +1,26 @@
+diff --git a/src/sprintf.js b/src/sprintf.js
+index 65d6324645ef1d0133614a71497751009dc5c912..34fcf8ed938cf47b2e57bf40946ec88052364c35 100644
+--- a/src/sprintf.js
++++ b/src/sprintf.js
+@@ -184,6 +184,12 @@
+                     throw new Error('[sprintf] mixing positional and named placeholders is not (yet) supported')
+                 }
+ 
++                var precision = match[7]
++                if (precision !== undefined && /[efg]/.test(match[8])) {
++                    var minimumPrecision = match[8] === 'g' ? 1 : 0
++                    precision = String(Math.min(100, Math.max(minimumPrecision, parseInt(precision, 10) || 0)))
++                }
++
+                 parse_tree.push(
+                     {
+                         placeholder: match[0],
+@@ -193,7 +199,7 @@
+                         pad_char:    match[4],
+                         align:       match[5],
+                         width:       match[6],
+-                        precision:   match[7],
++                        precision:   precision,
+                         type:        match[8]
+                     }
+                 )

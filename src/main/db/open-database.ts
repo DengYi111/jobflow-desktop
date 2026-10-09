@@ -5,6 +5,7 @@ import type Database from 'better-sqlite3'
 import { migrateDatabase } from './migrate'
 import { cleanupMigrationBackupStaging, encryptLegacyMigrationBackups } from './backup-before-migrate'
 import type { SecureFileStore } from '../services/secure-file-store'
+import { cleanupBackupExportStaging } from '../services/backup.service'
 
 const require = createRequire(import.meta.url)
 const BetterSqlite = require('better-sqlite3') as typeof import('better-sqlite3')
@@ -16,6 +17,7 @@ export async function openDatabase(
 ): Promise<Database.Database> {
   fs.mkdirSync(userDataDirectory, { recursive: true })
   await cleanupMigrationBackupStaging(userDataDirectory)
+  await cleanupBackupExportStaging(userDataDirectory)
   await encryptLegacyMigrationBackups(userDataDirectory, secureFileStore)
   const db = new BetterSqlite(path.join(userDataDirectory, 'jobflow.sqlite'))
   try {

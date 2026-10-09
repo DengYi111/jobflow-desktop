@@ -76,8 +76,8 @@ describe('browser page privacy controls', () => {
       </MemoryRouter>,
     )
 
-    const sidebar = await screen.findByRole('complementary', { name: '浏览器工具侧栏' })
-    fireEvent.click(within(sidebar).getByRole('button', { name: /收藏招聘官网/ }))
+    await screen.findByRole('tab', { name: /Astra/ })
+    fireEvent.click(screen.getByRole('button', { name: '收藏当前招聘官网' }))
     const dialog = await screen.findByRole('dialog', { name: '收藏招聘网站' })
     fireEvent.change(within(dialog).getByLabelText('显示名称'), {
       target: { value: site.name },
@@ -94,8 +94,8 @@ describe('browser page privacy controls', () => {
         url: site.url,
       }),
     )
-    expect(await screen.findByRole('button', { name: '已保存的网站（1）' })).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: '已保存的网站（1）' }))
+    expect(await screen.findByRole('button', { name: '已保存网站' })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: '已保存网站' }))
     expect(await screen.findByText(site.name)).toBeTruthy()
   })
 
@@ -145,7 +145,7 @@ describe('browser page privacy controls', () => {
       height: 400,
       toJSON: () => ({}),
     })
-    fireEvent.click(screen.getByRole('button', { name: /收藏招聘官网/ }))
+    fireEvent.click(screen.getByRole('button', { name: '收藏当前招聘官网' }))
     await screen.findByRole('dialog', { name: '收藏招聘网站' })
     await waitFor(() => expect(setBounds).toHaveBeenLastCalledWith({ x: 0, y: 0, width: 0, height: 0 }))
     fireEvent.keyDown(document, { key: 'Escape' })
@@ -190,13 +190,13 @@ describe('browser page privacy controls', () => {
       </MemoryRouter>,
     )
 
-    expect(await screen.findByRole('button', { name: /已保存的网站/ })).toBeTruthy()
-    expect(screen.getByRole('button', { name: /最近访问/ })).toBeTruthy()
+    expect(await screen.findByRole('button', { name: '已保存网站' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: '浏览历史记录' })).toBeTruthy()
     expect(screen.queryByText('联影招聘官网')).toBeNull()
     expect(screen.queryByText('联影岗位列表')).toBeNull()
-    fireEvent.click(screen.getByRole('button', { name: /已保存的网站/ }))
+    fireEvent.click(screen.getByRole('button', { name: '已保存网站' }))
     expect(await screen.findByText('联影招聘官网')).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: /最近访问/ }))
+    fireEvent.click(screen.getByRole('button', { name: '浏览历史记录' }))
     expect(await screen.findByText('联影岗位列表')).toBeTruthy()
     expect(screen.queryByRole('button', { name: '清空' })).toBeNull()
     expect(screen.queryByRole('button', { name: '清除登录状态与缓存' })).toBeNull()
@@ -282,7 +282,7 @@ describe('browser page privacy controls', () => {
     await waitFor(() => expect(fillFocusedField).toHaveBeenCalledWith({ value: '林同学' }))
   })
 
-  it('offers a single job capture entry and keeps website favorites above saved websites', async () => {
+  it('offers one job capture entry and keeps website access in the toolbar', async () => {
     window.jobflow = {
       browser: {
         subscribe: vi.fn(() => () => {}),
@@ -306,12 +306,17 @@ describe('browser page privacy controls', () => {
         setBounds: vi.fn().mockResolvedValue({ ok: true }),
         listSites: vi.fn().mockResolvedValue({ ok: true, data: [] }),
         listHistory: vi.fn().mockResolvedValue({ ok: true, data: [] }),
+        inspectForm: vi.fn().mockResolvedValue({ ok: true, data: [] }),
+        listAutofillMappings: vi.fn().mockResolvedValue({ ok: true, data: [] }),
+        fillProfileFields: vi.fn().mockResolvedValue({ ok: true, data: { filled: 0 } }),
         capturePage: vi.fn().mockResolvedValue({
           ok: true,
           data: { title: '嵌入式工程师', url: 'https://careers.example.com/jobs/1', text: '工作地点 武汉' },
         }),
       },
       companies: { list: vi.fn().mockResolvedValue({ ok: true, data: [] }) },
+      profile: { get: vi.fn().mockResolvedValue({ ok: true, data: { profile: {} } }) },
+      resumes: { list: vi.fn().mockResolvedValue({ ok: true, data: [] }) },
     } as unknown as JobFlowApi
     const { container } = render(
       <MemoryRouter>
@@ -319,23 +324,18 @@ describe('browser page privacy controls', () => {
       </MemoryRouter>,
     )
 
-    const sidebar = await screen.findByRole('complementary', { name: '浏览器工具侧栏' })
-    const favorite = within(sidebar).getByRole('button', { name: /收藏招聘官网/ })
-    const saved = within(sidebar).getByRole('button', { name: /已保存的网站/ })
+    const favorite = await screen.findByRole('button', { name: '收藏当前招聘官网' })
+    const saved = screen.getByRole('button', { name: '已保存网站' })
     expect(favorite.compareDocumentPosition(saved) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    const toolButtons = [
-      favorite,
-      within(sidebar).getByRole('button', { name: '收录岗位' }),
-      within(sidebar).getByRole('button', { name: '一键填写当前网页' }),
-      within(sidebar).getByRole('button', { name: '手动投递助手' }),
-    ]
-    expect(toolButtons.every((button) => button.classList.contains('browser-tool-button'))).toBe(true)
-    expect(within(sidebar).queryByRole('button', { name: '收录为待投递岗位' })).toBeNull()
-    expect(within(sidebar).queryByRole('button', { name: '收录为已投递岗位' })).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: /投递助手/ }))
+    const assistant = await screen.findByRole('complementary', { name: '投递助手' })
+    expect(within(assistant).getAllByRole('button', { name: /收录岗位/ })).toHaveLength(1)
+    expect(within(assistant).getByRole('button', { name: /一键填写/ })).toBeTruthy()
+    expect(assistant.querySelector('.browser-profile-assistant')).toBeTruthy()
 
-    fireEvent.click(within(sidebar).getByRole('button', { name: '收录岗位' }))
+    fireEvent.click(within(assistant).getByRole('button', { name: /收录岗位/ }))
     expect(await screen.findByRole('dialog', { name: '确认收录岗位' })).toBeTruthy()
     expect(screen.getByText('保存后阶段')).toBeTruthy()
-    expect(container.querySelector('.browser-toolbar button[aria-label="收藏招聘官网"]')).toBeNull()
+    expect(container.querySelector('.browser-toolbar button[aria-label="收藏当前招聘官网"]')).toBeTruthy()
   })
 })

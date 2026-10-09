@@ -271,7 +271,7 @@ describe('dashboard page', () => {
     expect(screen.getByTestId('kanban-board').getAttribute('data-refresh-token')).toBe('1')
   })
 
-  it('completes assessment, written test, interview and custom action against their own records', async () => {
+  it('completes assessment, written test and all interview rounds against their own records', async () => {
     const api = createApi()
     render(
       <MemoryRouter>
@@ -282,13 +282,11 @@ describe('dashboard page', () => {
     fireEvent.click(await screen.findByLabelText('完成：云端系统 · 软件工程师'))
     fireEvent.click(screen.getByLabelText('完成：芯片科技 · 固件工程师'))
     fireEvent.click(screen.getByLabelText('已完成全部面试：星河科技 · 嵌入式工程师'))
-    fireEvent.click(screen.getByLabelText('完成：远山科技 · 准备项目介绍'))
 
     await waitFor(() => {
       expect(api.completeStageAction).toHaveBeenCalledWith({ id: 'application-assessment' })
       expect(api.completeStageAction).toHaveBeenCalledWith({ id: 'application-written' })
       expect(api.completeInterview).toHaveBeenCalledWith({ id: 'interview-1' })
-      expect(api.completeNextAction).toHaveBeenCalledWith({ id: 'application-custom' })
     })
   })
 
@@ -343,7 +341,7 @@ describe('dashboard page', () => {
     )
 
     fireEvent.click(within(lane).getByLabelText('下一面：星河科技 · 嵌入式工程师'))
-    expect(await screen.findByText('安排主管面（第 2 面）')).toBeTruthy()
+    expect(await screen.findByText('安排第 2 面')).toBeTruthy()
   })
 
   it('completes or rejects the pending interview from its action card', async () => {
@@ -371,7 +369,7 @@ describe('dashboard page', () => {
     )
   })
 
-  it('saves each action notification independently', async () => {
+  it('saves the interview reminder independently from other interview records', async () => {
     const api = createApi()
     render(
       <MemoryRouter>
@@ -379,18 +377,19 @@ describe('dashboard page', () => {
       </MemoryRouter>,
     )
 
-    const timeInput = await screen.findByLabelText('提醒日期时间：远山科技 · 准备项目介绍')
+    const label = '星河科技 · 第一面·技术面'
+    const timeInput = await screen.findByLabelText(`提醒日期时间：${label}`)
     const reminderRow = timeInput.closest('.dashboard-action-reminder-row')
     expect(reminderRow).toBeTruthy()
-    expect(reminderRow?.contains(screen.getByLabelText('桌面通知：远山科技 · 准备项目介绍'))).toBe(true)
+    expect(reminderRow?.contains(screen.getByLabelText(`桌面通知：${label}`))).toBe(true)
     fireEvent.change(timeInput, { target: { value: '2026-09-27T10:00' } })
     fireEvent.blur(timeInput)
-    fireEvent.click(screen.getByLabelText('桌面通知：远山科技 · 准备项目介绍'))
+    fireEvent.click(screen.getByLabelText(`桌面通知：${label}`))
 
     await waitFor(() =>
-      expect(api.setNextActionNotification).toHaveBeenCalledWith(
+      expect(api.setInterviewNotification).toHaveBeenCalledWith(
         expect.objectContaining({
-          id: 'application-custom',
+          id: 'interview-1',
           enabled: true,
           notificationAt: expect.any(String),
         }),
@@ -443,7 +442,7 @@ describe('dashboard page', () => {
     }
     fireEvent.dragStart(article, { dataTransfer: transfer })
     fireEvent.drop(screen.getByTestId('dashboard-action-lane-INTERVIEW'), { dataTransfer: transfer })
-    expect(await screen.findByText(/第一面/)).toBeTruthy()
+    expect(await screen.findByText('安排第 1 面')).toBeTruthy()
     fireEvent.change(screen.getByLabelText('面试时间'), { target: { value: '2026-10-01T09:00' } })
     fireEvent.click(screen.getByRole('button', { name: '保存并进入面试中' }))
 

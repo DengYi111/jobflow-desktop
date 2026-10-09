@@ -71,20 +71,20 @@ describe('browser repository', () => {
     browser.saveAutofillMapping({
       hostname: 'Jobs.Stars.Example',
       signature: 'input|text|name',
-      profileField: 'name',
+      sourceKey: 'name',
     })
     browser.saveAutofillMapping({
       hostname: 'jobs.stars.example',
       signature: 'input|text|name',
-      profileField: 'phone',
+      sourceKey: 'phone',
     })
     browser.saveAutofillMapping({
       hostname: 'apply.stars.example',
       signature: 'input|text|name',
-      profileField: 'email',
+      sourceKey: 'email',
     })
     expect(browser.listAutofillMappings('jobs.stars.example')).toEqual([
-      { hostname: 'jobs.stars.example', signature: 'input|text|name', profileField: 'phone' },
+      { hostname: 'jobs.stars.example', signature: 'input|text|name', sourceKey: 'phone' },
     ])
   })
 })

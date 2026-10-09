@@ -260,7 +260,7 @@ describe('interviews, question bank, profile and resumes', () => {
     expect(firstScan).toHaveLength(1)
     expect(firstScan[0]).toMatchObject({
       originalName: 'portfolio-resume.pdf',
-      relativePath: expect.stringMatching(/^files[\\/]resumes[\\/]vault[\\/].+\.jfr$/),
+      relativePath: expect.stringMatching(/^files[\\/]resumes[\\/]storage[\\/].+\.pdf$/),
     })
     expect(fs.existsSync(path.join(folder, 'portfolio-resume.pdf'))).toBe(false)
     expect(secondScan).toHaveLength(1)
@@ -293,8 +293,11 @@ describe('interviews, question bank, profile and resumes', () => {
 
     await service.migrateStorage()
 
-    expect(repositories.resumes.get('resume-legacy')).toMatchObject({ relativePath: encryptedRelativePath })
+    expect(repositories.resumes.get('resume-legacy')).toMatchObject({
+      relativePath: path.join('files', 'resumes', 'storage', 'resume-legacy.pdf'),
+    })
     expect(fs.existsSync(pendingPath)).toBe(false)
+    expect(fs.existsSync(path.join(userData, encryptedRelativePath))).toBe(false)
     expect((await service.readPdf('resume-legacy')).name).toBe('旧简历.pdf')
   })
 
@@ -328,7 +331,7 @@ describe('interviews, question bank, profile and resumes', () => {
     expect(fs.existsSync(path.join(userData, oldRelativePath))).toBe(false)
     expect(fs.existsSync(pendingPath)).toBe(false)
     expect(repositories.resumes.get('resume-duplicate')).toMatchObject({
-      relativePath: path.join('files', 'resumes', 'vault', 'resume-duplicate.jfr'),
+      relativePath: path.join('files', 'resumes', 'storage', 'resume-duplicate.pdf'),
     })
     expect((await service.readPdf('resume-duplicate')).base64).toBe(original.toString('base64'))
   })
@@ -424,7 +427,7 @@ describe('interviews, question bank, profile and resumes', () => {
     expect(afterDelete.customFields).toHaveLength(0)
   })
 
-  it('imports resumes into managed storage and archive keeps application references', async () => {
+  it('imports plain resume files and keeps application references without an archive action', async () => {
     const { application } = createApplication()
     const source = path.join(temp, 'resume-source.pdf')
     fs.writeFileSync(source, 'readable test resume')
@@ -439,14 +442,10 @@ describe('interviews, question bank, profile and resumes', () => {
       relativePath: expect.stringMatching(/^files[\\/]resumes[\\/]/),
     })
     const storedPath = path.join(temp, 'user-data', imported.relativePath)
-    expect(fs.readFileSync(storedPath).toString('utf8')).not.toContain('readable test resume')
-    expect((await secureFileStore.decrypt(fs.readFileSync(storedPath))).toString('utf8')).toBe(
-      'readable test resume',
-    )
+    expect(fs.readFileSync(storedPath).toString('utf8')).toBe('readable test resume')
     repositories.applications.updateDetails(application.id, {})
     db.prepare('UPDATE applications SET resume_version_id=? WHERE id=?').run(imported.id, application.id)
-    await service.archive(imported.id)
-    expect(await service.list()).toHaveLength(0)
+    expect(await service.list()).toHaveLength(1)
     expect(
       db
         .prepare('SELECT resume_version_id AS resumeVersionId FROM applications WHERE id=?')
@@ -561,7 +560,7 @@ describe('interviews, question bank, profile and resumes', () => {
     }))
 
     await expect(service.importFromDialog()).rejects.toThrow('database write failed')
-    expect(fs.readdirSync(path.join(userData, 'files', 'resumes', 'vault'))).toEqual([])
+    expect(fs.readdirSync(path.join(userData, 'files', 'resumes', 'storage'))).toEqual([])
   })
 
   it('does not accept a renderer-supplied resume file path', async () => {

@@ -102,7 +102,9 @@ describe('interview flow', () => {
 
   it('rejects deleting a future interview', () => {
     const future = flow.schedule({ applicationId, roundNumber: 1, interviewAt: '2026-10-02T09:00:00.000Z' })
-    expect(() => createInterviewsService(repositories, flow).deletePast(future.id)).toThrow('尚未结束')
+    expect(() =>
+      createInterviewsService(repositories, flow).deletePast(future.id, '2026-10-01T09:00:00.000Z'),
+    ).toThrow('尚未结束')
     expect(repositories.interviews.get(future.id)).toBeTruthy()
   })
   it('requires all missing earlier round dates before scheduling a later round', () => {

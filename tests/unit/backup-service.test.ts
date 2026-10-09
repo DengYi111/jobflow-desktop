@@ -3,7 +3,10 @@ import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { createBackupService as createBackupServiceImplementation } from '../../src/main/services/backup.service'
+import {
+  cleanupBackupExportStaging,
+  createBackupService as createBackupServiceImplementation,
+} from '../../src/main/services/backup.service'
 import { createSecureFileStore } from '../../src/main/services/secure-file-store'
 import { fakeSecretProtector } from '../helpers/fake-secret-protector'
 
@@ -76,6 +79,7 @@ describe('backup service', () => {
     const result = await service.exportFromDialog()
 
     expect(result).toEqual({ canceled: false })
+    await expect(fs.stat(path.join(dataDirectory, '.backup-export-staging'))).rejects.toThrow()
     const manifest = JSON.parse(await fs.readFile(path.join(output, 'manifest.json'), 'utf8')) as {
       version: number
       metadataFile: string
@@ -201,6 +205,28 @@ describe('backup service', () => {
     db.close()
   })
 
+  it('rejects oversized manifests before parsing them and cleans abandoned plaintext staging', async () => {
+    const dataDirectory = await makeDirectory()
+    const packageDirectory = path.join(await makeDirectory(), 'oversized-backup')
+    await fs.mkdir(packageDirectory, { recursive: true })
+    await fs.writeFile(path.join(packageDirectory, 'manifest.json'), Buffer.alloc(1024 * 1024 + 1, 0x20))
+    const stagingDirectory = path.join(dataDirectory, '.backup-export-staging')
+    await fs.mkdir(path.join(stagingDirectory, 'abandoned'), { recursive: true })
+    await fs.writeFile(path.join(stagingDirectory, 'abandoned', 'jobflow.sqlite'), 'plaintext')
+    const db = createDatabase()
+    const service = createBackupService(db, dataDirectory, {
+      chooseExportPath: async () => null,
+      chooseRestorePath: async () => packageDirectory,
+      chooseCsvPath: async () => null,
+    })
+
+    await expect(service.restoreFromDialog()).rejects.toThrow('备份清单无法读取')
+    await cleanupBackupExportStaging(dataDirectory)
+    await expect(fs.stat(stagingDirectory)).rejects.toThrow()
+    await expect(fs.stat(path.join(dataDirectory, 'restore-staging'))).rejects.toThrow()
+    db.close()
+  })
+
   it('refuses a backup from a newer schema before staging any files', async () => {
     const dataDirectory = await makeDirectory()
     const output = path.join(await makeDirectory(), 'newer-backup')
@@ -273,9 +299,14 @@ describe('backup service', () => {
     ).toBe('恢复目标')
     restored.close()
     const rollback = (await fs.readdir(path.join(dataDirectory, 'backups')))[0]
-    const beforeRestore = trackDatabase(
-      new Database(path.join(dataDirectory, 'backups', rollback, 'jobflow.sqlite'), { readonly: true }),
+    const encryptedRollback = await fs.readFile(
+      path.join(dataDirectory, 'backups', rollback, 'jobflow.sqlite.jfr'),
     )
+    expect(encryptedRollback.includes(Buffer.from('当前数据'))).toBe(false)
+    const rollbackBytes = await secureFileStore.decrypt(encryptedRollback)
+    const rollbackSnapshot = path.join(dataDirectory, 'rollback-inspection.sqlite')
+    await fs.writeFile(rollbackSnapshot, rollbackBytes)
+    const beforeRestore = trackDatabase(new Database(rollbackSnapshot, { readonly: true }))
     expect(
       (beforeRestore.prepare('SELECT name FROM companies WHERE id=?').get('c1') as { name: string }).name,
     ).toBe('当前数据')

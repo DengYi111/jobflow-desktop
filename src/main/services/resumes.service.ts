@@ -203,6 +203,15 @@ export function createResumesService(
       const source = path.resolve(userDataDirectory, relativePath)
       const destinationRelative = path.join('files', 'resumes', 'storage', `${id}${extension}`)
       const destination = path.resolve(userDataDirectory, destinationRelative)
+      const pendingPaths = [
+        path.join(resumeDirectory, `.migration-resume-${id}.pending`),
+        path.join(resumeDirectory, `.migration-resume-${id.replace(/^resume-/, '')}.pending`),
+      ]
+      const legacyEncryptedPath = path.join(
+        resumeDirectory,
+        'vault',
+        `resume-${id.replace(/^resume-/, '')}.jfr`,
+      )
       if (!isInside(realRoot, source) || !isInside(realRoot, destination))
         throw new Error('简历文件路径无效，已停止安全迁移')
 
@@ -213,11 +222,15 @@ export function createResumesService(
         continue
       }
 
-      const [sourceStat, destinationStat] = await Promise.all([
+      const [sourceStat, destinationStat, pendingStats, legacyEncryptedStat] = await Promise.all([
         fs.lstat(source).catch(() => undefined),
         fs.lstat(destination).catch(() => undefined),
+        Promise.all(pendingPaths.map((pendingPath) => fs.lstat(pendingPath).catch(() => undefined))),
+        fs.lstat(legacyEncryptedPath).catch(() => undefined),
       ])
-      for (const stat of [sourceStat, destinationStat]) {
+      const pendingStat = pendingStats.find(Boolean)
+      if (pendingStats.filter(Boolean).length > 1) throw new Error('简历迁移文件不一致，已停止安全迁移')
+      for (const stat of [sourceStat, destinationStat, pendingStat, legacyEncryptedStat]) {
         if (stat && (!stat.isFile() || stat.isSymbolicLink() || stat.size > MAX_RESUME_BYTES + 16384))
           throw new Error('旧版简历文件无法验证，已停止安全迁移')
       }
@@ -228,6 +241,18 @@ export function createResumesService(
         const storedBytes = await fs.readFile(source)
         sourceBytes = sourceIsEncrypted ? await requireSecurity().fileStore.decrypt(storedBytes) : storedBytes
       }
+      const pendingPath = pendingStat ? pendingPaths[pendingStats.indexOf(pendingStat)] : undefined
+      const pendingBytes = pendingPath ? await fs.readFile(pendingPath) : undefined
+      const legacyEncryptedBytes = legacyEncryptedStat
+        ? await requireSecurity().fileStore.decrypt(await fs.readFile(legacyEncryptedPath))
+        : undefined
+      for (const recoveryCopy of [pendingBytes, legacyEncryptedBytes]) {
+        if (sourceBytes && recoveryCopy && !sourceBytes.equals(recoveryCopy))
+          throw new Error('简历迁移文件不一致，已停止安全迁移')
+        if (!sourceBytes && recoveryCopy) sourceBytes = recoveryCopy
+      }
+      if (pendingBytes && legacyEncryptedBytes && !pendingBytes.equals(legacyEncryptedBytes))
+        throw new Error('简历迁移文件不一致，已停止安全迁移')
       if (!sourceBytes && !destinationStat) throw new Error(`简历文件不存在：${resume.originalName}`)
       if (sourceBytes?.length && sourceBytes.length > MAX_RESUME_BYTES)
         throw new Error('旧版简历文件无法验证，已停止安全迁移')
@@ -243,6 +268,8 @@ export function createResumesService(
 
       if (sourceStat && path.resolve(source) !== path.resolve(destination))
         await fs.rm(source, { force: true })
+      if (pendingPath) await fs.rm(pendingPath, { force: true })
+      if (legacyEncryptedStat) await fs.rm(legacyEncryptedPath, { force: true })
       repositories.resumes.updateRelativePath(id, destinationRelative)
     }
     await registerDroppedFiles()

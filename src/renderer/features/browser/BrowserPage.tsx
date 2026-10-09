@@ -71,7 +71,6 @@ export function BrowserPage({ initialUrl }: { initialUrl?: string }) {
   const [fillRequest, setFillRequest] = useState(0)
   const [quickAccess, setQuickAccess] = useState<'sites' | 'history' | null>(null)
   const [assistantOpen, setAssistantOpen] = useState(false)
-  const [initialApplied, setInitialApplied] = useState<'draft' | 'applied'>('draft')
   const [pageCapture, setPageCapture] = useState(emptyCapture)
   const [duplicateMatches, setDuplicateMatches] = useState<
     Array<{ id: string; companyName: string; title: string; city: string | null; stage: string }>
@@ -190,11 +189,10 @@ export function BrowserPage({ initialUrl }: { initialUrl?: string }) {
     }
   }
 
-  async function captureCurrentPage(applied: 'draft' | 'applied' = 'draft') {
+  async function captureCurrentPage() {
     try {
       const current = unwrap(await window.jobflow.browser.capturePage())
       setPageCapture(current)
-      setInitialApplied(applied)
       setCaptureOpen(true)
     } catch (error) {
       messageApi.error(error instanceof Error ? error.message : '当前页面无法收录')
@@ -316,6 +314,7 @@ export function BrowserPage({ initialUrl }: { initialUrl?: string }) {
               }}
             />
             <Button
+              aria-label="已保存网站"
               icon={<FolderOpenOutlined />}
               onClick={() => {
                 setSiteQuery('')
@@ -324,10 +323,15 @@ export function BrowserPage({ initialUrl }: { initialUrl?: string }) {
             >
               已保存网站
             </Button>
-            <Button icon={<ClockCircleOutlined />} onClick={() => setQuickAccess('history')}>
+            <Button
+              aria-label="浏览历史记录"
+              icon={<ClockCircleOutlined />}
+              onClick={() => setQuickAccess('history')}
+            >
               历史
             </Button>
             <Button
+              aria-label="切换投递助手"
               type={assistantOpen ? 'primary' : 'default'}
               icon={<RobotOutlined />}
               onClick={() => setAssistantOpen((open) => !open)}
@@ -391,7 +395,7 @@ export function BrowserPage({ initialUrl }: { initialUrl?: string }) {
               url={activeTab.url}
               fillRequest={fillRequest}
               onFill={() => setFillRequest((current) => current + 1)}
-              onCapture={(applied) => void captureCurrentPage(applied)}
+              onCapture={() => void captureCurrentPage()}
               onClose={() => setAssistantOpen(false)}
             />
           )}
@@ -400,7 +404,6 @@ export function BrowserPage({ initialUrl }: { initialUrl?: string }) {
 
       <BrowserCaptureDialog
         open={captureOpen}
-        initialApplied={initialApplied}
         page={pageCapture}
         companies={companies}
         sites={sites}

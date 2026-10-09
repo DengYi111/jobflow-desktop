@@ -174,7 +174,7 @@ describe('profile page experience forms and resume list', () => {
     expect(
       screen.getByText('作品集：https://example.test/portfolio').classList.contains('custom-field-value'),
     ).toBe(true)
-    expect(screen.getByRole('button', { name: '打开简历所在加密文件夹：简历 1' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: '打开简历文件位置：简历 1' })).toBeTruthy()
     expect(screen.getByRole('button', { name: '预览简历：简历 1' })).toBeTruthy()
     expect(screen.getByRole('button', { name: '添加自定义资料字段' })).toBeTruthy()
   })

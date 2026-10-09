@@ -200,7 +200,9 @@ export function assertTrustedSender(senderFrame: SenderFrame, expectedOrigin: st
   if (
     senderFrame.isMainFrame === false ||
     actual.protocol !== expected.protocol ||
-    actual.host !== expected.host
+    actual.host !== expected.host ||
+    actual.username !== '' ||
+    actual.password !== ''
   ) {
     throw new Error('Untrusted IPC sender')
   }

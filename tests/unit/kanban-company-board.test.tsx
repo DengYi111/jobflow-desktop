@@ -182,7 +182,7 @@ describe('company-grouped Kanban board', () => {
 
     const transfer = await dragJobTo('job-a2', 'INTERVIEW_PENDING')
     expect(transfer.setData).toHaveBeenCalledWith('text/jobflow-id', 'job-a2')
-    expect(await screen.findByText('安排技术面（第 1 面）')).toBeTruthy()
+    expect(await screen.findByText('安排第 1 面')).toBeTruthy()
     expect(applicationTransition).not.toHaveBeenCalled()
   })
 
@@ -237,7 +237,7 @@ describe('company-grouped Kanban board', () => {
     renderBoard()
     await user.click(await screen.findByRole('button', { name: /星河科技（2）/ }))
     await chooseAntOption(user, '固件工程师阶段', '面试中')
-    expect(await screen.findByText('安排技术面（第 1 面）')).toBeTruthy()
+    expect(await screen.findByText('安排第 1 面')).toBeTruthy()
     fireEvent.change(screen.getByLabelText('面试时间'), { target: { value: '2026-10-01T09:00' } })
     await user.click(screen.getByRole('button', { name: '保存并进入面试中' }))
     await waitFor(() =>

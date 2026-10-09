@@ -100,9 +100,9 @@ export function createInterviewsService(
     setType(id: string, type: 'TECHNICAL' | 'HR' | 'MANAGER' | 'CROSS_FUNCTIONAL' | 'OTHER') {
       if (!repositories.interviews.setType(id, type)) throw new Error('没有找到对应面试')
     },
-    deletePast(id: string) {
+    deletePast(id: string, now?: string) {
       if (!flow) throw new Error('面试流程暂不可用')
-      return flow.deletePast(id)
+      return flow.deletePast(id, now)
     },
     saveReview(input: {
       id: string
