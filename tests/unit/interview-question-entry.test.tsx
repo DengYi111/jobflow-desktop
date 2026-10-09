@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen, waitFor } from '@testing-library/react'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { InterviewsPage } from '../../src/renderer/features/interviews/InterviewsPage'
@@ -40,6 +40,7 @@ const jobflow = {
 }
 
 beforeEach(() => {
+  cleanup()
   vi.stubGlobal(
     'ResizeObserver',
     class {
@@ -100,6 +101,37 @@ describe('one-question-at-a-time entry', () => {
     expect(addQuestion).toHaveBeenLastCalledWith(
       expect.objectContaining({ question: '说明 DMA 工作流程', category: '嵌入式基础' }),
     )
+  })
+
+  it('marks a question as answered when only the better answer is recorded', async () => {
+    const user = userEvent.setup()
+    jobflow.interviews.questionBank.search.mockResolvedValue({
+      ok: true,
+      data: [
+        {
+          id: 'question-better-answer-only',
+          interviewId: 'interview-1',
+          question: '485 收发切换时机',
+          category: 'STM32',
+          myAnswer: null,
+          betterAnswer: '根据 DE 和 RE 引脚控制收发方向。',
+          notes: null,
+          companyName: '星河科技',
+          companyId: 'company-1',
+          jobTitle: '嵌入式工程师',
+          jobId: 'job-1',
+          occurrenceCount: 1,
+          normalizedQuestion: '485收发切换时机',
+          round: '第一面',
+          occurrences: [],
+        },
+      ],
+    })
+
+    render(<InterviewsPage />)
+    await user.click(screen.getAllByRole('tab', { name: '面试题库' })[0])
+
+    expect(await screen.findByText(/星河科技 · 嵌入式工程师 · 第一面 · 已记录回答/)).toBeTruthy()
   })
 
   it('opens a searchable question, renders code, collapses answer sections and saves edits', async () => {
