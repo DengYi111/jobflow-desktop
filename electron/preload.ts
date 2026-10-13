@@ -144,6 +144,7 @@ const api: JobFlowApi = {
     fillProfileFields: (input) => invoke('jobflow:browser.fillProfileFields', input),
     uploadResume: (input) => invoke('jobflow:browser.uploadResume', input),
     fillFocusedField: (input) => invoke('jobflow:browser.fillFocusedField', input),
+    confirmAutofill: () => invoke('jobflow:browser.confirmAutofill'),
     copyProfileValue: (input) => invoke('jobflow:browser.copyProfileValue', input),
     subscribe: (listener) => {
       const handler = (_event: Electron.IpcRendererEvent, state: Parameters<typeof listener>[0]) =>

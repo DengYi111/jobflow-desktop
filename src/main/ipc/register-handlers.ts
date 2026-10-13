@@ -113,6 +113,7 @@ const methodSchemas: Record<string, z.ZodType> = {
   'jobflow:browser.fillProfileFields': browserFillFieldsSchema,
   'jobflow:browser.uploadResume': browserUploadResumeSchema,
   'jobflow:browser.fillFocusedField': browserFillFocusedFieldSchema,
+  'jobflow:browser.confirmAutofill': emptyInputSchema,
   'jobflow:browser.copyProfileValue': browserClipboardSchema,
   'jobflow:applications.transition': applicationTransitionInputSchema,
   'jobflow:applications.submit': applicationSubmitInputSchema,

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Alert, Button, Checkbox, List, Modal, Select, Spin, Tag, Typography, message } from 'antd'
+import { Alert, Button, Checkbox, List, Select, Spin, Tag, Typography, message } from 'antd'
 import type { BrowserAutofillMappingInput, BrowserFormField } from '../../../shared/contracts/api'
 import { adapterForHostname } from './autofill-adapters'
 import { matchAutofillField } from './autofill-matcher'
@@ -175,15 +175,8 @@ export function BrowserProfileAssistant({
           field.sourceKey && field.confidence >= 0.6 && field.confidence < 0.85 && !field.selectionTouched,
       )
       if (needsConfirmation) {
-        filling.current = false
-        Modal.confirm({
-          title: '确认中等置信度字段',
-          content:
-            '部分字段匹配需要确认。继续后会填写高置信度字段和这些候选字段；你也可以先在列表中修改映射。',
-          okText: '确认填写',
-          cancelText: '检查映射',
-          onOk: () => fillSelectedFields(currentFields, true),
-        })
+        const confirmed = unwrap(await window.jobflow.browser.confirmAutofill())
+        if (confirmed) await fillSelectedFields(currentFields, true)
         return
       }
       await fillSelectedFields(currentFields)

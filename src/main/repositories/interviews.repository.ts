@@ -231,6 +231,11 @@ export function createInterviewsRepository(db: Database.Database) {
         ...occurrences[0],
         normalizedQuestion,
         occurrenceCount: occurrences.length,
+        hasRecordedAnswer: occurrences.some(
+          (occurrence) =>
+            (typeof occurrence.myAnswer === 'string' && occurrence.myAnswer.trim().length > 0) ||
+            (typeof occurrence.betterAnswer === 'string' && occurrence.betterAnswer.trim().length > 0),
+        ),
         occurrences,
       }))
     },

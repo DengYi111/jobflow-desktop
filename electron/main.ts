@@ -476,6 +476,7 @@ app.whenReady().then(async () => {
         browserResult(() => browserController!.uploadResume(input as BrowserUploadResumeInput)),
       'jobflow:browser.fillFocusedField': ([input]) =>
         browserResult(() => browserController!.fillFocusedField(input as { value: string })),
+      'jobflow:browser.confirmAutofill': () => browserResult(() => browserController!.confirmAutofill()),
       'jobflow:browser.copyProfileValue': ([input]) =>
         browserResult(() => clipboard.writeText((input as { value: string }).value)),
     },

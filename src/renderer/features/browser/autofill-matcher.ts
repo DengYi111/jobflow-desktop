@@ -9,37 +9,109 @@ export interface AutofillMatch {
 }
 
 const fieldAliases: Record<string, string[]> = {
-  name: ['姓名', '真实姓名', '申请人姓名', '申请人', '应聘者姓名', 'fullname', 'legalname'],
-  phone: ['手机号', '手机号码', '联系电话', '电话号码', '联系电话', 'mobile', 'phone', 'tel'],
-  email: ['电子邮箱', '邮箱', '电子邮件', 'email'],
+  name: [
+    '姓名',
+    '真实姓名',
+    '申请人姓名',
+    '申请人',
+    '应聘者姓名',
+    '候选人姓名',
+    '联系人姓名',
+    'fullname',
+    'legalname',
+  ],
+  phone: [
+    '手机号',
+    '手机号码',
+    '联系电话',
+    '电话号码',
+    '联系电话',
+    '联系手机',
+    '移动电话',
+    '本人手机',
+    'mobile',
+    'phone',
+    'tel',
+  ],
+  email: ['电子邮箱', '邮箱', '电子邮件', '联系邮箱', 'email'],
   gender: ['性别', 'gender', 'sex'],
   birthday: ['出生日期', '生日', '出生年月', 'birthday', 'dateofbirth', 'dob'],
   hometown: ['籍贯', '户籍所在地', '家乡', 'hometown', 'nativeplace'],
-  currentCity: ['当前城市', '现居城市', '居住城市', '居住地', 'currentcity', 'currentaddress'],
-  expectedCity: ['期望城市', '意向城市', '工作地点意向', '期望工作地', 'expectedcity', 'preferredcity'],
-  expectedSalary: ['期望薪资', '期望月薪', '薪资期望', 'expectedsalary'],
+  currentCity: [
+    '当前城市',
+    '现居城市',
+    '居住城市',
+    '居住地',
+    '所在城市',
+    '目前居住城市',
+    'currentcity',
+    'currentaddress',
+  ],
+  expectedCity: [
+    '期望城市',
+    '意向城市',
+    '工作地点意向',
+    '期望工作地',
+    '工作城市意向',
+    '意向工作地',
+    '工作城市',
+    'expectedcity',
+    'preferredcity',
+  ],
+  expectedSalary: ['期望薪资', '期望月薪', '薪资期望', '期望年薪', '期望工资', 'expectedsalary'],
   documentType: ['证件类型', '证件类别', '证件种类', 'documenttype', 'idtype'],
   documentNumber: ['证件号码', '证件号', '身份证号码', '身份证号', 'documentnumber', 'idnumber'],
   ethnicity: ['民族', 'ethnicity', 'ethnicgroup'],
   emergencyContactName: ['紧急联系人姓名', '紧急联系人', 'emergencycontactname'],
   emergencyContactPhone: ['紧急联系人电话', '紧急联系电话', '紧急联系人手机号', 'emergencycontactphone'],
   mailingAddress: ['通讯地址', '通信地址', '联系地址', 'mailingaddress', 'postaladdress'],
-  school: ['学校', '院校', '毕业院校', 'school', 'university', 'college'],
-  degree: ['学历', '学位', '最高学历', 'degree', 'educationlevel'],
-  major: ['专业', '所学专业', 'major', 'fieldofstudy'],
-  graduationDate: ['毕业时间', '毕业日期', '预计毕业', 'graduationdate', 'graduationyear'],
+  school: [
+    '学校',
+    '院校',
+    '毕业院校',
+    '毕业学校',
+    '毕业学校名称',
+    '院校名称',
+    'school',
+    'university',
+    'college',
+  ],
+  degree: ['学历', '学位', '最高学历', '最高学历层次', 'degree', 'educationlevel'],
+  major: ['专业', '所学专业', '专业名称', 'major', 'fieldofstudy'],
+  graduationDate: [
+    '毕业时间',
+    '毕业日期',
+    '预计毕业',
+    '毕业年月',
+    '预计毕业年月',
+    'graduationdate',
+    'graduationyear',
+  ],
 }
 
 const experienceAliases: Record<string, string[]> = {
   school: ['学校', '院校', '毕业院校', 'school', 'university', 'college'],
   degree: ['学历', '学位', 'degree', 'educationlevel'],
   major: ['专业', 'major', 'fieldofstudy'],
-  employer: ['实习单位', '实习公司', '工作单位', '雇主', 'employer', 'company'],
-  role: ['担任角色', '职位', '岗位名称', 'role', 'position', 'jobtitle'],
-  name: ['项目名称', '项目标题', 'projectname', 'projecttitle'],
+  employer: ['实习单位', '实习公司', '工作单位', '工作/实习单位', '公司名称', '雇主', 'employer', 'company'],
+  role: ['担任角色', '职位', '岗位名称', '工作职位', '职责角色', 'role', 'position', 'jobtitle'],
+  name: ['项目名称', '项目标题', '项目名', 'projectname', 'projecttitle'],
   startDate: ['入学时间', '开始时间', '开始日期', '起始时间', 'startdate', 'fromdate'],
   endDate: ['毕业时间', '结束时间', '结束日期', '离校时间', 'enddate', 'todate'],
-  description: ['工作内容', '工作描述', '职责', '项目描述', '项目内容', 'description', 'responsibilities'],
+  description: [
+    '工作内容',
+    '工作描述',
+    '工作职责',
+    '实习内容',
+    '实习职责',
+    '职责描述',
+    '职责',
+    '项目描述',
+    '项目内容',
+    '项目介绍',
+    'description',
+    'responsibilities',
+  ],
   notes: ['教育描述', '教育说明', '经历说明', 'educationdescription'],
 }
 
@@ -98,10 +170,11 @@ export function matchAutofillField(
   const label = normalize(field.label)
   const aria = normalize(field.ariaLabel ?? '')
   const attributes = normalize(`${field.name ?? ''} ${field.id ?? ''} ${field.signature}`)
+  const placeholder = normalize(field.placeholder ?? '')
   const structural = normalize(
     `${field.group ?? ''} ${field.context ?? ''} ${adapter.extraFieldText(field).join(' ')}`,
   )
-  const allEvidence = `${label} ${aria} ${attributes} ${structural}`
+  const allEvidence = `${label} ${aria} ${placeholder} ${attributes} ${structural}`
   const sectionKind = /实习|工作经历|internship|workexperience/.test(structural)
     ? 'internship'
     : /项目经历|项目经验|project/.test(structural)
@@ -127,6 +200,10 @@ export function matchAutofillField(
     if (candidateAliases.length && includesAlias(aria, candidateAliases)) {
       score = Math.max(score, 0.97)
       reason ||= 'ARIA 标签'
+    }
+    if (candidateAliases.length && includesAlias(placeholder, candidateAliases)) {
+      score = Math.max(score, 0.78)
+      reason ||= '输入提示匹配'
     }
     if (candidateAliases.length && includesAlias(label, candidateAliases)) {
       const exact = candidateAliases.some((alias) => label === normalize(alias))
@@ -168,6 +245,9 @@ export function matchAutofillField(
       evidence = reason
     }
   }
+
+  if (placeholder && !aria && /^(请输入|请选择|选择|填写|输入|请填写)$/.test(label))
+    confidence = Math.min(confidence, 0.78)
 
   if (
     chosen?.key.startsWith('education.') ||

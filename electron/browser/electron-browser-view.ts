@@ -17,6 +17,7 @@ import {
   createInspectFormScript,
 } from './page-forms'
 import { createViewDisposer } from './view-disposal'
+import { createAutofillConfirmationScript } from './page-confirmation'
 
 export function createElectronBrowserView(
   browserSession: Session,
@@ -29,6 +30,7 @@ export function createElectronBrowserView(
   fillFields(fields: BrowserFillFieldsInput['fields']): Promise<{ filled: number }>
   uploadResume(input: BrowserUploadResumeInput): Promise<{ uploaded: boolean }>
   fillFocusedField(value: string): Promise<{ filled: boolean }>
+  confirmAutofill(): Promise<boolean>
 } {
   const view = new WebContentsView({
     webPreferences: {
@@ -205,5 +207,6 @@ export function createElectronBrowserView(
       }
     },
     fillFocusedField: (value) => contents.executeJavaScript(createFillFocusedFieldScript(value)),
+    confirmAutofill: () => contents.executeJavaScript(createAutofillConfirmationScript()),
   }
 }

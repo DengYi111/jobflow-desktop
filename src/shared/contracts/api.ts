@@ -450,6 +450,7 @@ export interface JobFlowApi {
     fillProfileFields(input: BrowserFillFieldsInput): Promise<ApiResult<{ filled: number }>>
     uploadResume(input: BrowserUploadResumeInput): Promise<ApiResult<{ uploaded: boolean }>>
     fillFocusedField(input: BrowserFillFocusedFieldInput): Promise<ApiResult<{ filled: boolean }>>
+    confirmAutofill(): Promise<ApiResult<boolean>>
     copyProfileValue(input: BrowserClipboardInput): Promise<ApiResult<void>>
     subscribe(listener: (state: BrowserState) => void): () => void
   }

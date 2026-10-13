@@ -5,6 +5,53 @@ import { matchAutofillField } from '../../src/renderer/features/browser/autofill
 import { buildAutofillSources } from '../../src/renderer/features/browser/profile-autofill'
 
 describe('experience autofill matching', () => {
+  it('uses placeholders as lower-confidence evidence for real field labels', () => {
+    const sources = buildAutofillSources({ profile: { phone: '13800000000' } })
+    const match = matchAutofillField(
+      {
+        index: 0,
+        tag: 'input',
+        type: 'text',
+        label: '请输入',
+        placeholder: '请输入手机号码',
+        signature: 'candidate-phone',
+      },
+      sources,
+      adapterForHostname('careers.example.com'),
+    )
+
+    expect(match.source?.key).toBe('phone')
+    expect(match.confidence).toBeGreaterThanOrEqual(0.6)
+    expect(match.confidence).toBeLessThan(0.85)
+  })
+
+  it('matches experience fields when their visible label is generic but the group and placeholder identify it', () => {
+    const sources = buildAutofillSources({
+      education: [{ id: 'edu-1', school: '华中科技大学' }],
+      internships: [{ id: 'intern-1', description: '负责嵌入式固件开发' }],
+      projects: [{ id: 'project-1', description: '完成传感器驱动和联调' }],
+    })
+    const match = (group: string, placeholder: string) =>
+      matchAutofillField(
+        {
+          index: 0,
+          tag: 'input',
+          type: 'text',
+          label: '请输入',
+          group,
+          context: group,
+          placeholder,
+          signature: `${group}-${placeholder}`,
+        },
+        sources,
+        adapterForHostname('careers.example.com'),
+      )
+
+    expect(match('教育经历', '请输入毕业院校').source?.value).toBe('华中科技大学')
+    expect(match('实习经历', '请输入工作职责').source?.value).toBe('负责嵌入式固件开发')
+    expect(match('项目经历', '请输入项目内容').source?.value).toBe('完成传感器驱动和联调')
+  })
+
   it('matches education, internship and project fields from their own sections', () => {
     const sources = buildAutofillSources({
       education: [{ id: 'edu-1', school: '武汉大学', degree: '本科' }],

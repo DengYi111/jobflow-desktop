@@ -401,6 +401,30 @@ describe('interviews, question bank, profile and resumes', () => {
     ).toMatchObject([{ normalizedQuestion: 'os scheduler', occurrenceCount: 1, category: '系统调度自定义' }])
   })
 
+  it('keeps a question marked answered when an older duplicate has an answer', () => {
+    const { application } = createApplication()
+    const service = createInterviewsService(repositories)
+    const older = service.create({
+      applicationId: application.id,
+      roundNumber: 1,
+      interviewAt: '2026-10-01T02:00:00.000Z',
+    })
+    const newer = service.create({
+      applicationId: application.id,
+      roundNumber: 2,
+      interviewAt: '2026-10-02T02:00:00.000Z',
+    })
+    const saved = service.addQuestion({
+      interviewId: older.id,
+      question: '485 收发切换时机',
+      category: 'STM32',
+    })
+    service.updateQuestion({ id: saved!.id, betterAnswer: '根据 DE 和 RE 引脚控制收发方向。' })
+    service.addQuestion({ interviewId: newer.id, question: '485 收发切换时机', category: 'STM32' })
+
+    expect(service.searchQuestionBank({})).toMatchObject([{ occurrenceCount: 2, hasRecordedAnswer: true }])
+  })
+
   it('saves nullable profile data and ordered editable education, projects and custom fields', async () => {
     const service = createProfileService(repositories, fakeSecretProtector)
     await service.save({ name: '小林', phone: null, email: 'lin@example.com' })

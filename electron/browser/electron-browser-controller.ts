@@ -23,6 +23,7 @@ type RemoteBrowserView = BrowserViewPort & {
     temporaryDirectory: string,
   ) => Promise<{ uploaded: boolean }>
   fillFocusedField: (value: string) => Promise<{ filled: boolean }>
+  confirmAutofill: () => Promise<boolean>
 }
 
 export function createElectronBrowserController(
@@ -154,6 +155,13 @@ export function createElectronBrowserController(
       if (!view?.fillFocusedField) throw new Error('请先打开招聘网页')
       if (!isAllowedBrowserNavigation(view.url)) throw new Error('当前网页地址不安全，无法填写表单')
       return view.fillFocusedField(value)
+    },
+    async confirmAutofill() {
+      const id = manager.getActiveTabId()
+      const view = id ? views.get(id) : undefined
+      if (!view?.confirmAutofill) throw new Error('请先打开招聘网页')
+      if (!isAllowedBrowserNavigation(view.url)) throw new Error('当前网页地址不安全，无法确认填写')
+      return view.confirmAutofill()
     },
     async uploadResume(input: BrowserUploadResumeInput) {
       const id = manager.getActiveTabId()

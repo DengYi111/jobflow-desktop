@@ -72,6 +72,7 @@ type BankRow = Question & {
   jobTitle: string
   jobId: string
   occurrenceCount: number
+  hasRecordedAnswer?: boolean
   normalizedQuestion: string
   round: string
   occurrences?: Array<{ category: string }>
@@ -832,7 +833,7 @@ export function InterviewsPage() {
                             <Tag color="blue">出现 {item.occurrenceCount} 次</Tag>
                           </Space>
                         }
-                        description={`${item.companyName} · ${item.jobTitle} · ${item.round} · ${item.myAnswer?.trim() || item.betterAnswer?.trim() ? '已记录回答' : '尚未记录回答'}`}
+                        description={`${item.companyName} · ${item.jobTitle} · ${item.round} · ${item.hasRecordedAnswer || item.myAnswer?.trim() || item.betterAnswer?.trim() ? '已记录回答' : '尚未记录回答'}`}
                       />
                     </List.Item>
                   )}
