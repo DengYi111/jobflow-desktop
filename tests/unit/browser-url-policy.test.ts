@@ -9,6 +9,13 @@ describe('browser URL policy', () => {
     })
   })
 
+  it('navigates to a complete HTTP recruitment URL without changing its path', () => {
+    expect(resolveBrowserInput('http://careers.example.com/jobs/42?from=campus')).toEqual({
+      kind: 'navigate',
+      url: 'http://careers.example.com/jobs/42?from=campus',
+    })
+  })
+
   it('adds HTTPS to a bare recruitment domain', () => {
     expect(resolveBrowserInput('careers.example.com/jobs/42')).toEqual({
       kind: 'navigate',
@@ -23,19 +30,17 @@ describe('browser URL policy', () => {
     })
   })
 
-  it.each([
-    'http://careers.example.com',
-    'javascript:alert(1)',
-    'data:text/html,hi',
-    'file:///C:/secret',
-    'https://user:pass@example.com',
-  ])('rejects unsafe URL %s', (value) => {
-    expect(resolveBrowserInput(value).kind).toBe('error')
-    expect(isAllowedBrowserNavigation(value)).toBe(false)
-  })
+  it.each(['javascript:alert(1)', 'data:text/html,hi', 'file:///C:/secret', 'https://user:pass@example.com'])(
+    'rejects unsafe URL %s',
+    (value) => {
+      expect(resolveBrowserInput(value).kind).toBe('error')
+      expect(isAllowedBrowserNavigation(value)).toBe(false)
+    },
+  )
 
-  it('blocks a later insecure navigation even after an HTTPS page was loaded', () => {
+  it('allows HTTP and HTTPS page navigation while rejecting other protocols', () => {
     expect(isAllowedBrowserNavigation('https://careers.example.com/next')).toBe(true)
-    expect(isAllowedBrowserNavigation('http://careers.example.com/next')).toBe(false)
+    expect(isAllowedBrowserNavigation('http://careers.example.com/next')).toBe(true)
+    expect(isAllowedBrowserNavigation('javascript:alert(1)')).toBe(false)
   })
 })

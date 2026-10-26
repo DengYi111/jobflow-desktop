@@ -148,14 +148,14 @@ export const externalLinkInputSchema = z
   .strict()
 export const browserInputSchema = z.object({ value: z.string().trim().min(1).max(2048) }).strict()
 export const browserTabIdSchema = z.object({ id: idSchema }).strict()
-const secureBrowserUrlSchema = z
+const browserUrlSchema = z
   .string()
   .url()
   .max(2048)
   .refine((value) => {
     try {
       const parsed = new URL(value)
-      return parsed.protocol === 'https:' && !parsed.username && !parsed.password
+      return ['http:', 'https:'].includes(parsed.protocol) && !parsed.username && !parsed.password
     } catch {
       return false
     }
@@ -164,7 +164,7 @@ export const browserSiteInputSchema = z
   .object({
     companyId: idSchema.nullable().optional(),
     name: z.string().trim().min(1).max(200),
-    url: secureBrowserUrlSchema,
+    url: browserUrlSchema,
     kind: z.enum(['COMPANY', 'CAREERS']),
   })
   .strict()
@@ -177,7 +177,7 @@ export const browserCaptureJobInputSchema = z
     jobCode: z.string().max(100).nullable().optional(),
     deadline: z.string().max(40).nullable().optional(),
     requirements: z.string().max(20000).nullable().optional(),
-    url: secureBrowserUrlSchema,
+    url: browserUrlSchema,
     pageTitle: z.string().max(500).nullable().optional(),
     jdText: z.string().max(50000).nullable().optional(),
     allowDuplicate: z.boolean().optional(),
@@ -383,6 +383,25 @@ export const questionBankSearchInputSchema = z
     companyId: idSchema.optional(),
     jobId: idSchema.optional(),
   })
+  .strict()
+export const customQuestionSearchInputSchema = z
+  .object({
+    query: z.string().trim().max(200).optional(),
+    category: z.string().trim().max(100).optional(),
+  })
+  .strict()
+export const customQuestionInputSchema = z
+  .object({
+    question: z.string().trim().min(1).max(2000),
+    category: z.string().trim().min(1).max(100),
+    myAnswer: z.string().max(10000).nullable().optional(),
+    betterAnswer: z.string().max(10000).nullable().optional(),
+    notes: z.string().max(5000).nullable().optional(),
+  })
+  .strict()
+export const customQuestionUpdateInputSchema = customQuestionInputSchema
+  .partial()
+  .extend({ id: idSchema })
   .strict()
 export const profileInputSchema = z
   .object({

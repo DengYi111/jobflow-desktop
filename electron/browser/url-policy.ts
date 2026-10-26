@@ -9,12 +9,13 @@ export function resolveBrowserInput(rawValue: string): BrowserInputResolution {
   const value = rawValue.trim()
   if (!value) return { kind: 'error', message: '请输入网址或搜索内容' }
 
-  if (SCHEME_PATTERN.test(value) && !/^https:\/\//i.test(value)) {
-    return { kind: 'error', message: '为保护账号安全，浏览器只允许 HTTPS 网站' }
+  const hasHttpScheme = /^https?:\/\//i.test(value)
+  if (SCHEME_PATTERN.test(value) && !hasHttpScheme) {
+    return { kind: 'error', message: '浏览器仅允许 HTTP 或 HTTPS 网站' }
   }
 
-  if (/^https:\/\//i.test(value) || DOMAIN_PATTERN.test(value)) {
-    const url = parseSecureUrl(/^https:\/\//i.test(value) ? value : `https://${value}`)
+  if (hasHttpScheme || DOMAIN_PATTERN.test(value)) {
+    const url = parseBrowserUrl(hasHttpScheme ? value : `https://${value}`)
     return url ? { kind: 'navigate', url } : { kind: 'error', message: '网址无效或包含不安全内容' }
   }
 
@@ -22,13 +23,14 @@ export function resolveBrowserInput(rawValue: string): BrowserInputResolution {
 }
 
 export function isAllowedBrowserNavigation(value: string): boolean {
-  return parseSecureUrl(value) !== undefined
+  return parseBrowserUrl(value) !== undefined
 }
 
-function parseSecureUrl(value: string): string | undefined {
+function parseBrowserUrl(value: string): string | undefined {
   try {
     const url = new URL(value)
-    if (url.protocol !== 'https:' || !url.hostname || url.username || url.password) return undefined
+    if (!['http:', 'https:'].includes(url.protocol) || !url.hostname || url.username || url.password)
+      return undefined
     return url.toString()
   } catch {
     return undefined

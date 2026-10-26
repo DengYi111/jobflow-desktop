@@ -7,7 +7,7 @@ import {
 } from '../../src/shared/schemas/common'
 
 describe('browser request contracts', () => {
-  it('only captures bounded HTTPS job pages and rejects unsafe sources', () => {
+  it('captures bounded HTTP or HTTPS job pages and rejects unsafe sources', () => {
     const valid = {
       companyName: '星河科技',
       title: '嵌入式工程师',
@@ -17,7 +17,7 @@ describe('browser request contracts', () => {
     expect(browserCaptureJobInputSchema.safeParse(valid).success).toBe(true)
     expect(
       browserCaptureJobInputSchema.safeParse({ ...valid, url: 'http://careers.example.org/job/1' }).success,
-    ).toBe(false)
+    ).toBe(true)
     expect(
       browserCaptureJobInputSchema.safeParse({ ...valid, url: 'https://user:pass@careers.example.org/job/1' })
         .success,
@@ -44,7 +44,7 @@ describe('browser request contracts', () => {
     expect(
       browserSiteInputSchema.safeParse({ name: '招聘官网', url: 'http://jobs.example.org/', kind: 'CAREERS' })
         .success,
-    ).toBe(false)
+    ).toBe(true)
     expect(
       browserFillFieldsSchema.safeParse({
         fields: Array.from({ length: 61 }, (_, index) => ({ signature: `field-${index}`, value: '姓名' })),

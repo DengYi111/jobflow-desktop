@@ -174,7 +174,7 @@ export function createElectronBrowserController(
       return repository.listSites(query)
     },
     saveSite(input: { companyId?: string | null; name: string; url: string; kind: 'COMPANY' | 'CAREERS' }) {
-      if (!isAllowedBrowserNavigation(input.url)) throw new Error('招聘官网必须使用 HTTPS 安全网址')
+      if (!isAllowedBrowserNavigation(input.url)) throw new Error('招聘官网必须使用 HTTP 或 HTTPS 网址')
       return repository.saveSite(input)
     },
     deleteSite({ id }: { id: string }) {

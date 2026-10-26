@@ -299,7 +299,7 @@ export function BrowserPage({ initialUrl }: { initialUrl?: string }) {
               onSearch={() => void navigate()}
               enterButton={<SearchOutlined />}
               className="browser-address"
-              placeholder="公司、招聘官网或 HTTPS 网址"
+              placeholder="公司、招聘官网或网址（HTTP/HTTPS）"
             />
           </Space>
           <Space className="browser-quick-actions" size={6}>
